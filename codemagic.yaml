@@ -7,7 +7,7 @@ workflows:
     # roda numa Mac normalmente, então isso não muda nada no resultado.
     instance_type: mac_mini_m2
     environment:
-      node: 20
+      node: 22
       vars:
         # Valores públicos por natureza (chave "anon"/"publishable" do
         # Supabase) — o que protege os dados de verdade são as políticas
