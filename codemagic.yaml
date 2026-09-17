@@ -2,15 +2,20 @@ workflows:
   android-capacitor:
     name: Prospecção — Android (Capacitor)
     max_build_duration: 30
+    # Os 500 minutos grátis do Codemagic só valem pra máquina macOS —
+    # máquinas Linux/Windows exigem faturamento ativado. Build Android
+    # roda numa Mac normalmente, então isso não muda nada no resultado.
     instance_type: mac_mini_m2
     environment:
       node: 20
       vars:
-        # Preencha em Codemagic → App settings → Environment variables
-        # (grupo "supabase"), marcando como "Secure" — não deixe esses
-        # valores direto neste arquivo.
-        NEXT_PUBLIC_SUPABASE_URL: $NEXT_PUBLIC_SUPABASE_URL
-        NEXT_PUBLIC_SUPABASE_ANON_KEY: $NEXT_PUBLIC_SUPABASE_ANON_KEY
+        # Valores públicos por natureza (chave "anon"/"publishable" do
+        # Supabase) — o que protege os dados de verdade são as políticas
+        # de RLS configuradas no banco, não o sigilo desta chave. Por
+        # isso pode ficar direto aqui, sem precisar cadastrar variável
+        # nenhuma na interface do Codemagic.
+        NEXT_PUBLIC_SUPABASE_URL: https://uslevrtsnziqbunqlxkq.supabase.co
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: sb_publishable_qMcEx_qkeP1diI3xxaaRJQ_gH-DnjrD
     scripts:
       - name: Instalar dependências
         script: npm ci
@@ -20,8 +25,8 @@ workflows:
         script: npx cap sync android
       - name: Build do APK (debug, não assinado)
         script: |
-          cd android 
-          chmod +x gradlew 
+          cd android
+          chmod +x gradlew
           ./gradlew assembleDebug
           # Pra gerar um .aab de release assinado (pra publicar na Play
           # Store), troque o comando acima por "./gradlew bundleRelease"
