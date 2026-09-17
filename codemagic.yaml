@@ -1,0 +1,37 @@
+workflows:
+  android-capacitor:
+    name: Prospecção — Android (Capacitor)
+    max_build_duration: 30
+    instance_type: linux_x2
+    environment:
+      node: 20
+      vars:
+        # Preencha em Codemagic → App settings → Environment variables
+        # (grupo "supabase"), marcando como "Secure" — não deixe esses
+        # valores direto neste arquivo.
+        NEXT_PUBLIC_SUPABASE_URL: $NEXT_PUBLIC_SUPABASE_URL
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: $NEXT_PUBLIC_SUPABASE_ANON_KEY
+    scripts:
+      - name: Instalar dependências
+        script: npm ci
+      - name: Build do Next.js (export estático)
+        script: npm run build
+      - name: Sincronizar projeto Android (Capacitor)
+        script: npx cap sync android
+      - name: Build do APK (debug, não assinado)
+        script: |
+          cd android
+          ./gradlew assembleDebug
+          # Pra gerar um .aab de release assinado (pra publicar na Play
+          # Store), troque o comando acima por "./gradlew bundleRelease"
+          # e configure a assinatura em Codemagic → Code signing → Android.
+    artifacts:
+      - android/app/build/outputs/**/*.apk
+      - android/app/build/outputs/**/*.aab
+    publishing:
+      email:
+        recipients:
+          - seu-email@exemplo.com
+        notify:
+          success: true
+          failure: true
