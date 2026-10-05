@@ -310,6 +310,24 @@ export default function MobileDashboard() {
     setPagina(Math.min(Math.max(1, novaPagina), totalPaginas));
   }
 
+  /** Monta a lista de números de página a exibir (com "..." nos saltos),
+   * igual ao padrão usado no programa de desktop: primeira, última, a atual
+   * e as vizinhas dela — ex.: ‹ 1 2 3 ... 10 ›. */
+  function paginasVisiveis(atual: number, total: number): (number | "...")[] {
+    const paginas: (number | "...")[] = [];
+    const vizinhanca = 1;
+    for (let p = 1; p <= total; p++) {
+      const ehBorda = p === 1 || p === total;
+      const ehVizinha = Math.abs(p - atual) <= vizinhanca;
+      if (ehBorda || ehVizinha) {
+        paginas.push(p);
+      } else if (paginas[paginas.length - 1] !== "...") {
+        paginas.push("...");
+      }
+    }
+    return paginas;
+  }
+
   // --- Ações sobre a empresa (prospecção / inválida / WhatsApp) ---
   function atualizarEmpresaLocal(id: string, campos: Partial<Empresa>) {
     setEmpresas((atual) => atual.map((e) => (e.id === id ? { ...e, ...campos } : e)));
@@ -626,7 +644,11 @@ export default function MobileDashboard() {
           className="brand-neodo-logo-h"
         />
         <span className="results-count">
-          {carregandoEmpresas ? "Buscando..." : `${totalRegistros} empresa${totalRegistros === 1 ? "" : "s"}`}
+          {carregandoEmpresas
+            ? "Buscando..."
+            : totalRegistros === 0
+            ? "0 empresas"
+            : `Mostrando ${(pagina - 1) * TAMANHO_PAGINA + 1}–${Math.min(pagina * TAMANHO_PAGINA, totalRegistros)} de ${totalRegistros}`}
         </span>
       </header>
 
@@ -707,14 +729,42 @@ export default function MobileDashboard() {
           })
         )}
 
-        {totalPaginas > 1 && (
-          <nav className="pagination-mobile">
-            <button className="btn btn-outline btn-sm" onClick={() => irParaPagina(pagina - 1)} disabled={pagina === 1}>‹ Anterior</button>
-            <span className="pagination-mobile-info">Página {pagina} de {totalPaginas}</span>
-            <button className="btn btn-outline btn-sm" onClick={() => irParaPagina(pagina + 1)} disabled={pagina === totalPaginas}>Próxima ›</button>
-          </nav>
-        )}
       </main>
+
+      {/* BARRA DE PAGINAÇÃO — fixa, sempre visível, igual ao programa de desktop */}
+      {totalPaginas > 1 && (
+        <nav className="pagination-bar">
+          <button
+            className="pagination-seta"
+            onClick={() => irParaPagina(pagina - 1)}
+            disabled={pagina === 1}
+            aria-label="Página anterior"
+          >
+            ‹
+          </button>
+          {paginasVisiveis(pagina, totalPaginas).map((p, i) =>
+            p === "..." ? (
+              <span key={`reticencias-${i}`} className="pagination-reticencias">…</span>
+            ) : (
+              <button
+                key={p}
+                className={`pagination-numero ${p === pagina ? "ativo" : ""}`}
+                onClick={() => irParaPagina(p)}
+              >
+                {p}
+              </button>
+            )
+          )}
+          <button
+            className="pagination-seta"
+            onClick={() => irParaPagina(pagina + 1)}
+            disabled={pagina === totalPaginas}
+            aria-label="Próxima página"
+          >
+            ›
+          </button>
+        </nav>
+      )}
 
       {/* MODAL DE DETALHES (CNAE, cópia rápida, prospecção, observações) */}
       {empresaSelecionadaDetalhes && (() => {
