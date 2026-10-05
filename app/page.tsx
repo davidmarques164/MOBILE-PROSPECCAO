@@ -735,7 +735,7 @@ export default function MobileDashboard() {
       {totalPaginas > 1 && (
         <nav className="pagination-bar">
           <button
-            className="pagination-seta"
+            className="btn btn-outline btn-icon btn-sm"
             onClick={() => irParaPagina(pagina - 1)}
             disabled={pagina === 1}
             aria-label="Página anterior"
@@ -748,7 +748,7 @@ export default function MobileDashboard() {
             ) : (
               <button
                 key={p}
-                className={`pagination-numero ${p === pagina ? "ativo" : ""}`}
+                className={`btn btn-icon btn-sm ${p === pagina ? "btn-primary" : "btn-outline"}`}
                 onClick={() => irParaPagina(p)}
               >
                 {p}
@@ -756,7 +756,7 @@ export default function MobileDashboard() {
             )
           )}
           <button
-            className="pagination-seta"
+            className="btn btn-outline btn-icon btn-sm"
             onClick={() => irParaPagina(pagina + 1)}
             disabled={pagina === totalPaginas}
             aria-label="Próxima página"
