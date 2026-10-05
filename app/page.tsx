@@ -741,14 +741,13 @@ export default function MobileDashboard() {
                 )}
 
                 <div className="empresa-acoes-footer" onClick={(e) => e.stopPropagation()}>
-                  <label className="acao-check" title={podeProspectar ? undefined : "Prospectada por outro usuário"}>
+                  <label className="acao-check">
                     <input
                       type="checkbox"
-                      checked={empresa.prospectada}
-                      disabled={!podeProspectar}
-                      onChange={() => alternarCheckboxProspectada(empresa)}
+                      checked={!!empresa.invalida}
+                      onChange={() => clicarSemRequisitos(empresa)}
                     />
-                    Prospectada
+                    Inválida
                   </label>
 
                   <div className="acoes-direita">
