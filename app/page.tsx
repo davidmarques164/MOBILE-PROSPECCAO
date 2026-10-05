@@ -772,12 +772,11 @@ export default function MobileDashboard() {
       {totalPaginas > 1 && (
         <nav className="pagination-bar">
           <button
-            className="btn btn-outline btn-icon btn-sm"
+            className="btn btn-outline btn-sm"
             onClick={() => irParaPagina(pagina - 1)}
             disabled={pagina === 1}
-            aria-label="Página anterior"
           >
-            ‹
+            ‹ Anterior
           </button>
           {paginasVisiveis(pagina, totalPaginas).map((p, i) =>
             p === "..." ? (
@@ -793,12 +792,11 @@ export default function MobileDashboard() {
             )
           )}
           <button
-            className="btn btn-outline btn-icon btn-sm"
+            className="btn btn-outline btn-sm"
             onClick={() => irParaPagina(pagina + 1)}
             disabled={pagina === totalPaginas}
-            aria-label="Próxima página"
           >
-            ›
+            Próxima ›
           </button>
         </nav>
       )}
