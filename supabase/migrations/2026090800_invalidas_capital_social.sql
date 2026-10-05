@@ -158,6 +158,11 @@ as $$
     case when p_ordenar_direcao = 'desc' and p_ordenar_por = 'cnae_principal' then e.cnae_principal end desc,
     case when p_ordenar_direcao = 'asc' and p_ordenar_por = 'situacao' then e.situacao end asc,
     case when p_ordenar_direcao = 'desc' and p_ordenar_por = 'situacao' then e.situacao end desc,
+    -- Faltava este par: sem ele, "Ordenar por: Capital social" (opção que
+    -- já existia no app mobile) não tinha nenhum efeito — os resultados
+    -- continuavam saindo em ordem alfabética de nome.
+    case when p_ordenar_direcao = 'asc' and p_ordenar_por = 'capital_social' then e.capital_social end asc nulls last,
+    case when p_ordenar_direcao = 'desc' and p_ordenar_por = 'capital_social' then e.capital_social end desc nulls last,
     e.nome asc
   limit p_limite offset p_offset;
 $$;
