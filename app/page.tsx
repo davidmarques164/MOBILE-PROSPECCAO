@@ -13,6 +13,7 @@ import {
 } from "@/lib/supabaseClient";
 import { ColunaId, MENSAGEM_PADRAO, normalizarOrdem } from "@/lib/colunas";
 import cnaeDescricoes from "@/lib/cnaeDescricoes.json";
+import { App as AppNativo } from "@capacitor/app";
 
 const VERSAO_APP = "2.1.0-mobile";
 
@@ -262,6 +263,42 @@ export default function MobileDashboard() {
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", tema === "escuro" ? "dark" : "light");
   }, [tema]);
+
+  // --- Botão de voltar físico do Android: fecha só o popup/gaveta aberta,
+  // em vez de fechar o app inteiro (comportamento padrão do WebView quando
+  // não há nada tratando o evento). Guardamos a lógica num ref pra sempre
+  // enxergar o estado mais recente sem precisar recriar o listener a cada
+  // mudança.
+  const aoVoltarAndroidRef = useRef<() => boolean>(() => false);
+  useEffect(() => {
+    aoVoltarAndroidRef.current = () => {
+      if (empresaSelecionadaDetalhes) {
+        setEmpresaSelecionadaDetalhes(null);
+        return true;
+      }
+      if (modal === "atualizacao") {
+        if (!atualizacaoRodando) setModal(null);
+        return true;
+      }
+      if (abaAtiva !== "home") {
+        setAbaAtiva("home");
+        return true;
+      }
+      return false;
+    };
+  });
+
+  useEffect(() => {
+    const assinatura = AppNativo.addListener("backButton", () => {
+      const fechouAlgumPopup = aoVoltarAndroidRef.current();
+      if (!fechouAlgumPopup) {
+        AppNativo.exitApp();
+      }
+    });
+    return () => {
+      assinatura.then((handler) => handler.remove());
+    };
+  }, []);
 
   // --- Busca de empresas (paginada) ---
   const buscarEmpresas = useCallback(async () => {
