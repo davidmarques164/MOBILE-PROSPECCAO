@@ -149,9 +149,10 @@ export default function MobileDashboard() {
   const [cidade, setCidade] = useState("");
   const [porte, setPorte] = useState("");
   const [busca, setBusca] = useState("");
-  const [filtroProspeccao, setFiltroProspeccao] = useState<FiltroProspeccao>("todas");
-  const [filtroValidade, setFiltroValidade] = useState<FiltroValidade>("todas");
+  const [filtroProspeccao, setFiltroProspeccao] = useState<FiltroProspeccao>("nao_prospectadas");
+  const [filtroValidade, setFiltroValidade] = useState<FiltroValidade>("validas");
   const [ordenarPor, setOrdenarPor] = useState<ColunaId>("nome");
+  const [ordenarDirecao, setOrdenarDirecao] = useState<"asc" | "desc">("asc");
 
   // --- Navegação inferior (também controla os modais de filtros/config) ---
   const [abaAtiva, setAbaAtiva] = useState<"home" | "busca" | "filtros" | "config">("home");
@@ -274,7 +275,7 @@ export default function MobileDashboard() {
       p_prospeccao: filtroProspeccao,
       p_validade: filtroValidade,
       p_ordenar_por: ordenarPor,
-      p_ordenar_direcao: "asc",
+      p_ordenar_direcao: ordenarDirecao,
       p_limite: TAMANHO_PAGINA,
       p_offset: inicio,
     });
@@ -289,7 +290,7 @@ export default function MobileDashboard() {
       setTotalRegistros(linhas.length > 0 ? linhas[0].total_count : 0);
     }
     setCarregandoEmpresas(false);
-  }, [cidade, porte, busca, filtroProspeccao, filtroValidade, ordenarPor, pagina]);
+  }, [cidade, porte, busca, filtroProspeccao, filtroValidade, ordenarPor, ordenarDirecao, pagina]);
 
   useEffect(() => {
     if (!carregandoSessao) buscarEmpresas();
@@ -297,7 +298,7 @@ export default function MobileDashboard() {
 
   useEffect(() => {
     setPagina(1);
-  }, [cidade, porte, busca, filtroProspeccao, filtroValidade, ordenarPor]);
+  }, [cidade, porte, busca, filtroProspeccao, filtroValidade, ordenarPor, ordenarDirecao]);
 
   const totalPaginas = Math.max(1, Math.ceil(totalRegistros / TAMANHO_PAGINA));
 
@@ -869,6 +870,18 @@ export default function MobileDashboard() {
                 <label className="rotulo-campo">Ordenar por</label>
                 <select className="input" value={ordenarPor} onChange={(e) => setOrdenarPor(e.target.value as ColunaId)}>
                   {OPCOES_ORDENACAO.map(o => <option key={o.id} value={o.id}>{o.rotulo}</option>)}
+                </select>
+              </div>
+
+              <div>
+                <label className="rotulo-campo">Direção</label>
+                <select className="input" value={ordenarDirecao} onChange={(e) => setOrdenarDirecao(e.target.value as "asc" | "desc")}>
+                  <option value="asc">
+                    {ordenarPor === "capital_social" ? "Crescente (menor → maior)" : "Crescente (A → Z)"}
+                  </option>
+                  <option value="desc">
+                    {ordenarPor === "capital_social" ? "Decrescente (maior → menor)" : "Decrescente (Z → A)"}
+                  </option>
                 </select>
               </div>
             </div>
